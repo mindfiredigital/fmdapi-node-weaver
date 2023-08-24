@@ -100,3 +100,4 @@ Important Docker Commands
 
 - Build: `docker build . -t basudevbharatbhushan/node-data-api  `
 - Run: `docker run -p 8000:8000 basudevbharatbhushan/node-data-api`
+- Pull Command: `docker pull basudevbharatbhushan/node-data-api`
