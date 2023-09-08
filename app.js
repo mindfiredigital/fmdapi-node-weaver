@@ -6,7 +6,6 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 //Routes
-
 const indexRoutes = require("./routes/index");
 
 //Middlewares
@@ -15,7 +14,6 @@ app.use(cookieParser());
 app.use(cors());
 
 //My Routes
-
 app.use("/api", indexRoutes);
 
 //PORT

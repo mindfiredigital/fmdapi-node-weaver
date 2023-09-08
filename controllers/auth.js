@@ -1,11 +1,42 @@
 require("dotenv").config();
 const axios = require("axios");
 const https = require("https");
+const jwt = require("jsonwebtoken");
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
+
+// Middleware to validate the session token
+exports.validateSession = async (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      if (!token) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      jwt.verify(token, process.env.SECRET, (err, payload) => {
+        if (err) {
+          return res.status(403).json({ error: "Forbidden" });
+        }
+        const { user, sessionToken } = payload;
+        req.user = user;
+        req.token = sessionToken;
+        next();
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  } else {
+    // Handle cases where the Authorization header is missing or doesn't start with "Bearer ".
+    res.sendStatus(401).json({
+      error: "Authorization header is missing or has an invalid format",
+    });
+  }
+};
 
 exports.signin = async (req, res) => {
   console.log(req.body);
@@ -27,42 +58,63 @@ exports.signin = async (req, res) => {
       { httpsAgent }
     );
 
-    const sessionToken = loginResponse.data.response.token;
+    if (loginResponse.status === 200) {
+      // Sign-in was successful, proceed to validate the session
 
-    // Call the validateSession route
-    const validateResponse = await axios.get(
-      `${process.env.FM_DATA_API_URL}/validateSession`,
-      {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
+      const sessionToken = loginResponse.data.response.token;
+      console.log(loginResponse);
+
+      // Call the validateSession route
+      const validateResponse = await axios.get(
+        `https://${req.body.fmServer}/fmi/data/vLatest/validateSession`,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
         },
-      },
-      { httpsAgent }
-    );
+        { httpsAgent }
+      );
 
-    // Check if the validation response is OK
-    if (validateResponse.data.messages[0].message === "OK") {
-      /*Put token in cookie and set expiration time to 30 minutes*/
-      const expirationTime = new Date();
-      expirationTime.setMinutes(expirationTime.getMinutes() + 30);
-      res.cookie("token", sessionToken, { expires: expirationTime });
+      // Check if the validation response is OK
+      if (validateResponse.data.messages[0].message === "OK") {
+        /* Create New JWT Session Token (Valid for 30 minutes) */
 
-      /* Return the access token in the response*/
-      res.json({
-        access_token: sessionToken,
-        username: username,
-        database: database,
-      });
+        const payload = {
+          user: username,
+          sessionToken,
+        };
+        const expiresIn = 1800;
+
+        const sessionJwtToken = jwt.sign(payload, process.env.SECRET, {
+          expiresIn,
+        });
+
+        const expirationTime = new Date();
+        expirationTime.setMinutes(expirationTime.getMinutes() + 30);
+
+        /* Return the access token in the response*/
+        res.json({
+          access_token: sessionJwtToken,
+          expires_in: expiresIn,
+          username: username,
+          database: database,
+        });
+      } else {
+        res.status(401).json({ error: "Access token validation failed" });
+      }
     } else {
-      res.status(401).json({ error: "Access token validation failed" });
+      // Sign-in was not successful, return an error response
+      res.status(401).json({ error: "Sign-in failed" });
     }
   } catch (error) {
+    console.log(error);
     const responseJson = {
       error: "An error occurred while signing in.",
     };
 
     if (error.response && error.response.statusText) {
       responseJson.statusText = error.response.statusText;
+      responseJson.error = error.response.data;
     }
 
     res.status(500).json(responseJson);
@@ -70,9 +122,9 @@ exports.signin = async (req, res) => {
 };
 
 exports.signout = async (req, res) => {
-  res.clearCookie("token");
-
-  const { database, token } = req.body.methodBody;
+  const user = req.user;
+  const token = req.token;
+  const { database } = req.body.methodBody;
   console.log(token);
 
   try {
@@ -87,7 +139,7 @@ exports.signout = async (req, res) => {
     );
 
     if (logoutResponse.data.messages[0].message === "OK") {
-      res.json({ message: "Signout success" });
+      res.json({ user, message: "Signout success" });
     } else {
       res.status(401).json({ error: "Signout failed" });
     }
@@ -98,6 +150,7 @@ exports.signout = async (req, res) => {
 
     if (error.response && error.response.statusText) {
       responseJson.statusText = error.response.statusText;
+      responseJson.error = error.response.data;
     }
 
     res.status(500).json(responseJson);
