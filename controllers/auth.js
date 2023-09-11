@@ -215,7 +215,6 @@ exports.signin = async (req, res) => {
 };
 
 exports.signout = async (req, res) => {
-  const user = req.user;
   const token = req.fmSessionToken;
   const { database } = req.body.methodBody;
   console.log(token);
@@ -232,7 +231,7 @@ exports.signout = async (req, res) => {
     );
 
     if (logoutResponse.data.messages[0].message === "OK") {
-      res.json({ user, message: "Signout success" });
+      res.json({ message: "Signout success" });
     } else {
       res.status(401).json({ error: "Signout failed" });
     }
