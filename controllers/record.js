@@ -209,3 +209,44 @@ exports.getAllRecords = async (req, res) => {
     res.status(500).json(responseJson);
   }
 };
+
+exports.updateRecord = async (req, res) => {
+  const token = req.fmSessionToken;
+  const { record, database, layout, recordId } = req.body.methodBody;
+
+  const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/records/${recordId}`;
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+
+  const requestData = {
+    fieldData: record,
+  };
+
+  try {
+    const response = await axios.patch(apiUrl, requestData, {
+      headers,
+      httpsAgent,
+    });
+    res.status(200).json({
+      status: "updated",
+      recordId,
+      fieldData: record,
+      session: req.fmSessionToken,
+    });
+  } catch (error) {
+    console.error(error);
+    const responseJson = {
+      error: "An error occurred while updating the record.",
+    };
+
+    if (error.response && error.response.statusText) {
+      responseJson.statusText = error.response.statusText;
+      responseJson.error = error.response.data;
+    }
+
+    res.status(500).json(responseJson);
+  }
+};

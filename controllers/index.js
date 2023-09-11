@@ -4,6 +4,7 @@ const {
   getRecordById,
   getAllRecords,
   findRecord,
+  updateRecord,
 } = require("./record");
 const { executeScript } = require("./script");
 const { test } = require("./test");
@@ -40,6 +41,9 @@ exports.dataApi = async (req, res) => {
             break;
           case "executeScript":
             executeScript(req, res);
+            break;
+          case "updateRecord":
+            updateRecord(req, res);
             break;
           case "test":
             test(req, res);
