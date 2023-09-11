@@ -9,7 +9,6 @@ const httpsAgent = new https.Agent({
 
 exports.executeScript = async (req, res) => {
   const token = req.fmSessionToken;
-  const user = req.user;
   const { database, layout, script, param } = req.body.methodBody;
 
   const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/script/${script}`;

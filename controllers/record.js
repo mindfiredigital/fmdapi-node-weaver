@@ -28,14 +28,12 @@ exports.createRecord = async (req, res) => {
       httpsAgent,
     });
     const recordId = response.data.response.recordId;
-    res
-      .status(201)
-      .json({
-        status: "created",
-        recordId,
-        fieldData: record,
-        session: req.fmSessionToken,
-      });
+    res.status(201).json({
+      status: "created",
+      recordId,
+      fieldData: record,
+      session: req.fmSessionToken,
+    });
   } catch (error) {
     console.error(error);
     const responseJson = {
@@ -158,16 +156,26 @@ exports.getRecordById = async (req, res) => {
 };
 
 exports.getAllRecords = async (req, res) => {
+  console.log("reaching here---getAllRecords");
   const token = req.fmSessionToken;
-  const { database, layout } = req.body.methodBody;
+  const { database, layout, offset, limit } = req.body.methodBody;
   const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/records`;
 
   const headers = {
     Authorization: `Bearer ${token}`,
   };
 
+  const queryParam = {
+    _offset: offset,
+    _limit: limit,
+  };
+
   try {
-    const recordResponse = await axios.get(apiUrl, { headers, httpsAgent });
+    const recordResponse = await axios.get(apiUrl, {
+      params: queryParam,
+      headers,
+      httpsAgent,
+    });
 
     if (recordResponse.data.messages[0].message === "OK") {
       const records = recordResponse.data.response.data.map(

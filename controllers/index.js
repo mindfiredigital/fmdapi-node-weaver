@@ -7,6 +7,7 @@ const {
 } = require("./record");
 const { executeScript } = require("./script");
 const { test } = require("./test");
+const { syncCollection } = require("./adalo");
 
 // Define an array of controller methods that should skip the validateSession middleware
 const controllersToSkipValidation = ["signin"];
@@ -42,6 +43,9 @@ exports.dataApi = async (req, res) => {
             break;
           case "test":
             test(req, res);
+            break;
+          case "syncCollection":
+            syncCollection(req, res);
             break;
 
           default:
