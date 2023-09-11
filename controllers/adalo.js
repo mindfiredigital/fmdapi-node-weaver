@@ -35,23 +35,25 @@ exports.syncCollection = async (req, res) => {
       adaloRecords.length
     );
 
-    // Loop through FM Server records and make a POST request for each record
-    for (const fmRecord of fmServerRecords) {
-      const postData = {
-        Name: fmRecord.Name,
-        Address: fmRecord.Address,
-        Phone: fmRecord.Phone,
-      };
+    if (fmServerRecords.length > 0) {
+      // Loop through FM Server records and make a POST request for each record
+      for (const fmRecord of fmServerRecords) {
+        const postData = {
+          Name: fmRecord.Name,
+          Address: fmRecord.Address,
+          Phone: fmRecord.Phone,
+        };
 
-      // Make a POST request to Adalo
-      await axios.post(
-        `https://api.adalo.com/v0/apps/21a2a65b-9c58-4b1d-9fac-ea24f1b58642/collections/t_8a7ovv8bjlh4qpofxz9ibblv5`,
-        postData,
-        { headers: adaloHeaders, httpsAgent }
-      );
+        // Make a POST request to Adalo
+        await axios.post(
+          `https://api.adalo.com/v0/apps/21a2a65b-9c58-4b1d-9fac-ea24f1b58642/collections/t_8a7ovv8bjlh4qpofxz9ibblv5`,
+          postData,
+          { headers: adaloHeaders, httpsAgent }
+        );
 
-      // You can log a message or perform other actions for each record if needed
-      console.log(`Posted record: ${JSON.stringify(postData)}`);
+        // You can log a message or perform other actions for each record if needed
+        console.log(`Posted record: ${JSON.stringify(postData)}`);
+      }
     }
 
     res.send("Sync Complete");
