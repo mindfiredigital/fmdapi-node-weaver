@@ -1,4 +1,4 @@
-const { signin, signout, validateSession } = require("./auth");
+const { signin, signout, validateSession, validateToken } = require("./auth");
 const {
   createRecord,
   getRecordById,
@@ -6,6 +6,7 @@ const {
   findRecord,
 } = require("./record");
 const { executeScript } = require("./script");
+const { test } = require("./test");
 
 // Define an array of controller methods that should skip the validateSession middleware
 const controllersToSkipValidation = ["signin"];
@@ -15,32 +16,38 @@ exports.dataApi = async (req, res) => {
 
   // Check if the method should skip validation
   if (!controllersToSkipValidation.includes(method)) {
-    // If the method is not in the skip list, apply the validateSession middleware
-    return validateSession(req, res, () => {
-      // Once validated, call the appropriate controller method
-      switch (method) {
-        case "signout":
-          signout(req, res);
-          break;
-        case "createRecord":
-          createRecord(req, res);
-          break;
-        case "getRecordById":
-          getRecordById(req, res);
-          break;
-        case "getAllRecords":
-          getAllRecords(req, res);
-          break;
-        case "findRecord":
-          findRecord(req, res);
-          break;
-        case "executeScript":
-          executeScript(req, res);
-          break;
+    // If the method is not in the skip list, apply the validateToken middleware first
+    return validateToken(req, res, () => {
+      // After token validation, apply the validateSession middleware
+      return validateSession(req, res, () => {
+        // Once validated, call the appropriate controller method
+        switch (method) {
+          case "signout":
+            signout(req, res);
+            break;
+          case "createRecord":
+            createRecord(req, res);
+            break;
+          case "getRecordById":
+            getRecordById(req, res);
+            break;
+          case "getAllRecords":
+            getAllRecords(req, res);
+            break;
+          case "findRecord":
+            findRecord(req, res);
+            break;
+          case "executeScript":
+            executeScript(req, res);
+            break;
+          case "test":
+            test(req, res);
+            break;
 
-        default:
-          res.status(500).json({ error: "Invalid method" });
-      }
+          default:
+            res.status(500).json({ error: "Invalid method" });
+        }
+      });
     });
   }
 
@@ -49,6 +56,7 @@ exports.dataApi = async (req, res) => {
     case "signin":
       signin(req, res);
       break;
+
     default:
       res.status(500).json({ error: "Invalid method" });
   }

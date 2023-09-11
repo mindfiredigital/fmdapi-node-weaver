@@ -8,96 +8,189 @@ const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
 
-// Middleware to validate the session token
-exports.validateSession = async (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    const token = authHeader.split(" ")[1];
-    try {
-      if (!token) {
-        return res.status(401).json({ error: "Unauthorized" });
-      }
+/* Middlewares */
 
-      jwt.verify(token, process.env.SECRET, (err, payload) => {
-        if (err) {
-          return res.status(403).json({ error: "Forbidden" });
+exports.validateToken = async (req, res, next) => {
+  // Get the Authorization header from the request
+  const authHeader = req.headers["authorization"];
+
+  // Check if the Authorization header is present
+  if (!authHeader) {
+    return res.status(401).json({ error: "Authorization header is missing" });
+  }
+
+  // The Authorization header typically looks like "Basic base64-encoded-credentials"
+  const authHeaderParts = authHeader.split(" ");
+
+  // Check if it's in the expected format
+  if (
+    authHeaderParts.length !== 2 ||
+    authHeaderParts[0].toLowerCase() !== "basic"
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Invalid Authorization header format" });
+  }
+
+  req.basicAuthToken = authHeaderParts[1];
+
+  next();
+};
+
+exports.validateSession = async (req, res, next) => {
+  const basicAuthToken = req.basicAuthToken;
+  const { session } = req.body;
+  const { token, required } = session || {};
+  const { database } = req.body.methodBody;
+  const { fmServer } = req.body;
+
+  let shouldCallNext = false; // Flag to track if next() should be called
+
+  // Case 1: No session information is provided
+  if (!session || !token) {
+    try {
+      const fmSessionToken = await fmLogin(
+        fmServer,
+        database,
+        basicAuthToken,
+        httpsAgent
+      );
+
+      if (fmSessionToken) {
+        const isSessionValid = await fmValidateSession(
+          fmServer,
+          fmSessionToken,
+          httpsAgent
+        );
+
+        if (isSessionValid) {
+          req.fmSessionToken = fmSessionToken;
+          shouldCallNext = true; // Set the flag to true
+        } else {
+          res.status(401).json({ error: "Session token validation failed" });
         }
-        const { user, sessionToken } = payload;
-        req.user = user;
-        req.token = sessionToken;
-        next();
-      });
+      }
     } catch (error) {
-      console.log(error);
+      res.status(401).json({ error });
     }
   } else {
-    // Handle cases where the Authorization header is missing or doesn't start with "Bearer ".
-    res.sendStatus(401).json({
-      error: "Authorization header is missing or has an invalid format",
-    });
+    try {
+      const isSessionValid = await fmValidateSession(
+        fmServer,
+        token,
+        httpsAgent
+      );
+
+      if (isSessionValid) {
+        req.fmSessionToken = token;
+        shouldCallNext = true; // Set the flag to true
+      } else {
+        // Case 2: Session token is provided but not required
+        if (token && (!required || required === false)) {
+          try {
+            const fmSessionToken = await fmLogin(
+              fmServer,
+              database,
+              basicAuthToken,
+              httpsAgent
+            );
+
+            if (fmSessionToken) {
+              const isSessionValid = await fmValidateSession(
+                fmServer,
+                fmSessionToken,
+                httpsAgent
+              );
+
+              if (isSessionValid) {
+                req.fmSessionToken = fmSessionToken;
+                shouldCallNext = true; // Set the flag to true
+              } else {
+                res
+                  .status(401)
+                  .json({ error: "Re-validation of session token failed" });
+              }
+            } else {
+              res.status(401).json({ error: "Re-authentication failed" });
+            }
+          } catch (error) {
+            res.status(401).json({ error });
+          }
+        } else {
+          // Case 3: Session token is provided and required
+          res.status(401).json({ error: "Invalid session token" });
+        }
+      }
+    } catch (error) {
+      res.status(401).json({ error: "Session validaton failed" });
+    }
+  }
+
+  if (shouldCallNext) {
+    next(); // Call next() only if the flag is true
   }
 };
 
+/* Controller Methods */
 exports.signin = async (req, res) => {
-  console.log(req.body);
-  const { username, password, database } = req.body.methodBody;
+  const { fmServer } = req.body;
+  const { session, username, password, database } = req.body.methodBody;
+  const { token, required } = session || {};
 
-  // Encode the username and password
-  const credentials = Buffer.from(`${username}:${password}`).toString("base64");
-  console.log(credentials);
-  try {
-    const loginResponse = await axios.post(
-      `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/sessions`,
-      {},
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${credentials}`,
-        },
-      },
-      { httpsAgent }
-    );
-
-    if (loginResponse.status === 200) {
-      // Sign-in was successful, proceed to validate the session
-
-      const sessionToken = loginResponse.data.response.token;
-      console.log(loginResponse);
-
-      // Call the validateSession route
-      const validateResponse = await axios.get(
-        `https://${req.body.fmServer}/fmi/data/vLatest/validateSession`,
-        {
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
-        },
-        { httpsAgent }
+  if (token & required) {
+    try {
+      const isSessionValid = await fmValidateSession(
+        fmServer,
+        token,
+        httpsAgent
       );
 
-      // Check if the validation response is OK
-      if (validateResponse.data.messages[0].message === "OK") {
-        /* Create New JWT Session Token (Valid for 30 minutes) */
-
-        const payload = {
-          user: username,
-          sessionToken,
-        };
-        const expiresIn = 1800;
-
-        const sessionJwtToken = jwt.sign(payload, process.env.SECRET, {
-          expiresIn,
-        });
-
-        const expirationTime = new Date();
-        expirationTime.setMinutes(expirationTime.getMinutes() + 30);
-
-        /* Return the access token in the response*/
-        res.json({
-          access_token: sessionJwtToken,
-          expires_in: expiresIn,
-          username: username,
+      if (isSessionValid) {
+        res.status(200).json({
+          message: "Signin Successful",
           database: database,
+          session: fmSessionToken,
+        });
+      } else {
+        res
+          .status(401)
+          .json({ error: "Session Expired or Invalid Session Token provided" });
+      }
+    } catch {
+      res.status(401).json(error);
+    }
+  }
+
+  // Encode the username and password
+  const basicAuthToken = Buffer.from(`${username}:${password}`).toString(
+    "base64"
+  );
+
+  try {
+    // Call the fmLogin utility function to perform FileMaker login
+    console.log(fmServer);
+    const fmSessionToken = await fmLogin(
+      fmServer,
+      database,
+      basicAuthToken,
+      httpsAgent
+    );
+
+    // Check if login was successful
+    if (fmSessionToken) {
+      // Call the fmValidateSession utility function to validate the session
+      const isSessionValid = await fmValidateSession(
+        fmServer,
+        fmSessionToken,
+        httpsAgent
+      );
+
+      if (isSessionValid) {
+        // Return the access token in the response
+        res.status(200).json({
+          message: "Signin Successful",
+          database: database,
+          session: fmSessionToken,
         });
       } else {
         res.status(401).json({ error: "Access token validation failed" });
@@ -123,7 +216,7 @@ exports.signin = async (req, res) => {
 
 exports.signout = async (req, res) => {
   const user = req.user;
-  const token = req.token;
+  const token = req.fmSessionToken;
   const { database } = req.body.methodBody;
   console.log(token);
 
@@ -154,5 +247,60 @@ exports.signout = async (req, res) => {
     }
 
     res.status(500).json(responseJson);
+  }
+};
+
+/* Utility Methods */
+const fmLogin = async (fmServer, database, basicAuthToken, httpsAgent) => {
+  console.log("reaching here---fmlogin");
+  console.log(
+    `https://${fmServer}/fmi/data/vLatest/databases/${database}/sessions`
+  );
+  try {
+    const loginResponse = await axios.post(
+      `https://${fmServer}/fmi/data/vLatest/databases/${database}/sessions`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${basicAuthToken}`,
+        },
+      },
+      { httpsAgent }
+    );
+    console.log(loginResponse);
+    return loginResponse.data.response.token;
+  } catch (error) {
+    console.log("fmLogin Error: ", error);
+    const responseJson = {
+      error: "An error occurred while logging in.",
+    };
+
+    if (error.response && error.response.statusText) {
+      responseJson.statusText = error.response.statusText;
+      responseJson.error = error.response.data;
+    }
+
+    throw responseJson;
+  }
+};
+
+const fmValidateSession = async (fmServer, sessionToken, httpsAgent) => {
+  console.log("reaching here---fmValidateSession");
+
+  try {
+    const validateResponse = await axios.get(
+      `https://${fmServer}/fmi/data/vLatest/validateSession`,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
+        httpsAgent,
+      }
+    );
+
+    return validateResponse.data.messages[0].message === "OK";
+  } catch (error) {
+    return false; // Return false if there was an error
   }
 };

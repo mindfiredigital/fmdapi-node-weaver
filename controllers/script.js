@@ -8,7 +8,7 @@ const httpsAgent = new https.Agent({
 });
 
 exports.executeScript = async (req, res) => {
-  const token = req.token;
+  const token = req.fmSessionToken;
   const user = req.user;
   const { database, layout, script, param } = req.body.methodBody;
 
@@ -31,7 +31,10 @@ exports.executeScript = async (req, res) => {
     });
 
     if (response.data.messages[0].message === "OK") {
-      res.status(200).json({ user, status: "Script Executed Successfully" });
+      res.status(200).json({
+        status: "Script Executed Successfully",
+        session: req.fmSessionToken,
+      });
     }
   } catch (error) {
     console.error(error);

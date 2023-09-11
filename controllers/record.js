@@ -8,8 +8,7 @@ const httpsAgent = new https.Agent({
 });
 
 exports.createRecord = async (req, res) => {
-  const user = req.user;
-  const token = req.token;
+  const token = req.fmSessionToken;
   const { record, database, layout } = req.body.methodBody;
 
   const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/records`;
@@ -31,7 +30,12 @@ exports.createRecord = async (req, res) => {
     const recordId = response.data.response.recordId;
     res
       .status(201)
-      .json({ user, status: "created", recordId, fieldData: record });
+      .json({
+        status: "created",
+        recordId,
+        fieldData: record,
+        session: req.fmSessionToken,
+      });
   } catch (error) {
     console.error(error);
     const responseJson = {
@@ -48,8 +52,7 @@ exports.createRecord = async (req, res) => {
 };
 
 exports.findRecord = async (req, res) => {
-  const user = req.user;
-  const token = req.token;
+  const token = req.fmSessionToken;
   const methodBody = req.body.methodBody;
   const { database, layout } = methodBody;
 
@@ -90,7 +93,7 @@ exports.findRecord = async (req, res) => {
     console.log(response.data);
     const record = response.data.response.data[0]?.fieldData;
     if (record) {
-      res.status(200).json({ user, record });
+      res.status(200).json({ record, session: req.fmSessionToken });
     } else {
       res.status(404).json({ error: "Record not found." });
     }
@@ -110,8 +113,7 @@ exports.findRecord = async (req, res) => {
 };
 
 exports.getRecordById = async (req, res) => {
-  const user = req.user;
-  const token = req.token;
+  const token = req.fmSessionToken;
   const { database, layout, Id } = req.body.methodBody;
 
   const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/_find`;
@@ -136,7 +138,7 @@ exports.getRecordById = async (req, res) => {
     });
     const record = response.data.response.data[0]?.fieldData;
     if (record) {
-      res.status(200).json({ user, record });
+      res.status(200).json({ record, session: req.fmSessionToken });
     } else {
       res.status(404).json({ error: "Record not found." });
     }
@@ -156,8 +158,7 @@ exports.getRecordById = async (req, res) => {
 };
 
 exports.getAllRecords = async (req, res) => {
-  const user = req.user;
-  const token = req.token;
+  const token = req.fmSessionToken;
   const { database, layout } = req.body.methodBody;
   const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/records`;
 
@@ -176,7 +177,6 @@ exports.getAllRecords = async (req, res) => {
       console.log(recordResponse.data.response.dataInfo.table);
 
       res.status(200).json({
-        user,
         recordInfo: {
           table: recordResponse.data.response.dataInfo.table,
           layout: recordResponse.data.response.dataInfo.layout,
@@ -184,6 +184,7 @@ exports.getAllRecords = async (req, res) => {
             recordResponse.data.response.dataInfo.totalRecordCount,
         },
         records,
+        session: req.fmSessionToken,
       });
     }
   } catch (error) {
