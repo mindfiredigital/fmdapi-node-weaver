@@ -30,11 +30,11 @@
 
 ```
 {
-    "fmServer":"208.85.249.144",
+    "fmServer":"<IpAddress>",
     "method":"signin",
     "methodBody":{
-        "username":"Developer",
-        "password":"adminbiz",
+        "username":"<Username>",
+        "password":"<Password>",
         "database":"KIB__Web"
     },
     "session":{
@@ -49,7 +49,7 @@
 
 ```
 {
-    "fmServer":"172.16.8.35",
+    "fmServer":"<IpAddress>",
     "method":"signout",
     "methodBody":{
         "database":"DataApiTest",
@@ -66,7 +66,7 @@
 
 ```
 {
-    "fmServer":"208.85.249.144",
+    "fmServer":"<IpAddress>",
     "method":"createRecord",
     "methodBody":{
         "database":"KIB__Web",
@@ -91,7 +91,7 @@
 
 ```
 {
-    "fmServer": "208.85.249.144",
+    "fmServer": "<IpAddress>",
     "method": "getAllRecords",
     "methodBody": {
         "database": "KIB__Web",
@@ -110,7 +110,7 @@
 
 ```
 {
-    "fmServer":"208.85.249.144",
+    "fmServer":"<IpAddress>",
     "method":"findRecord",
     "methodBody":{
         "database":"KIB__Web",
@@ -151,7 +151,7 @@
 
 ```
 {
-    "fmServer":"208.85.249.144",
+    "fmServer":"<IpAddress>",
     "method":"executeScript",
     "methodBody":{
         "database":"KIB__Web",
