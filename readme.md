@@ -1,8 +1,13 @@
 # Node-DATA-API Bundler
 
-### Base URL - http://localhost:8000/api/dataApi
+### Base URL - https://dataapi-o2iw.onrender.com/api/dataApi
 
-### Header - content-type: application/json
+### Header
+
+- content-type: application/json
+- Authorization: Bearer Base64Encoded(<UserName:Password>)
+
+**NOTE:** : Session Token in body is optional, if session token is provided and flag is empty/false, it will try to call API with the provided session, if provided session is not valid, it will create a new session and return it.
 
 ### body format:
 
@@ -10,7 +15,11 @@
 {
     "fmServer":"<IpAddress>",
     "method":"<methodName>",
-    "methodBody":{<method specific body>}
+    "methodBody":{<method specific body>},
+    "session":{
+        "token":"<sessionToken>",
+        "required":"<true/false>"
+    }
 }
 
 ```
@@ -21,13 +30,18 @@
 
 ```
 {
-    "fmServer":"172.16.8.35",
+    "fmServer":"208.85.249.144",
     "method":"signin",
     "methodBody":{
-        "username":"Admin",
-        "password":"1234",
-        "database":"DataApiTest"
+        "username":"Developer",
+        "password":"adminbiz",
+        "database":"KIB__Web"
+    },
+    "session":{
+        "token":"",
+        "required":""
     }
+
 }
 ```
 
@@ -39,8 +53,11 @@
     "method":"signout",
     "methodBody":{
         "database":"DataApiTest",
-        "token":"bf0465c3ced685ad1b8d35f76715c3965801b9bf188c94b359f8"
 
+    },
+    "session":{
+        "token":"6bbc7533af96e7c362e49c9bb54762ef8697a9994734b4487c",
+        "required":"true"
     }
 }
 ```
@@ -49,55 +66,104 @@
 
 ```
 {
-    "fmServer":"172.16.8.35",
+    "fmServer":"208.85.249.144",
     "method":"createRecord",
     "methodBody":{
-        "token":"84397ccff212c53098fc533a1e396bb55f574d71a02b172ca55",
-        "database":"DataApiTest",
+        "database":"KIB__Web",
         "layout":"API_USER",
         "record":{
-            "Name": "Kartik Aryan",
+            "Name": "Varun Sharma",
             "Phone": "7873333071",
-            "Address":"Indore"
+            "Address":"Newyork"
         }
+
+    },
+    "session":{
+        "token":"6bbc7533af96e7c362e49c9bb54762ef8697a9994734b4487c",
+        "required":""
     }
 }
+
+
 ```
 
 - ## GetAllRecords
 
 ```
 {
-    "fmServer":"172.16.8.35",
-    "method":"getAllRecords",
-    "methodBody":{
-        "token":"84397ccff212c53098fc533a1e396bb55f574d71a02b172ca55",
-        "database":"DataApiTest",
-        "layout":"API_USER"
+    "fmServer": "208.85.249.144",
+    "method": "getAllRecords",
+    "methodBody": {
+        "database": "KIB__Web",
+        "layout": "API_USER",
+        "offset":"1"
 
+    },
+    "session": {
+        "token": "6bbc7533af96e7c362e49c9bb54762ef8697a9994734b4487c",
+        "required": ""
     }
 }
 ```
 
-- ## GetRecordsById
+- ## FindRecord
 
 ```
 {
-    "fmServer":"172.16.8.35",
-    "method":"getRecordById",
+    "fmServer":"208.85.249.144",
+    "method":"findRecord",
     "methodBody":{
-        "token":"a0bcfc8cf4c901e6cd16e0887d6f2e495deac6a79b8e6a6a926",
-        "database":"DataApiTest",
+        "database":"KIB__Web",
         "layout":"API_USER",
-        "Id":"5B6DD25D-7028-F740-9DC9-5BBC7075BB26"
+         "offset": 0,
+         "limit": 0,
+         "layout.response": "string",
+        "dataformats":0,
+        "query":[
+            {"Name": "=Basudev"},
+             {"Phone" : "8658474424", "omit" : "false"}
+         ],
+        "sort":[
+             {"fieldName": "CreationTimestamp","sortOrder": "ascend"}
+         ],
+        "scripts":{
+            "script": "TestScript",
+            "script.param": "Yashraj"
+             "script.prerequest": "string",
+             "script.prerequest.param": "string",
+             "script.presort": "string",
+             "script.presort.param": "string"
+        },
+         "portal": [
+             "string"
+         ]
+    },
+    "session":{
+        "token":"9c786011470abf28896b5cad374989d4a0b378a0e1e381b9d4",
+        "required":false
     }
 }
 ```
 
 ---
 
-Important Docker Commands
+- ## ExecuteScript
 
-- Build: `docker build . -t basudevbharatbhushan/node-data-api  `
-- Run: `docker run -p 8000:8000 basudevbharatbhushan/node-data-api`
-- Pull Command: `docker pull basudevbharatbhushan/node-data-api`
+```
+{
+    "fmServer":"208.85.249.144",
+    "method":"executeScript",
+    "methodBody":{
+        "database":"KIB__Web",
+        "layout":"API_USER",
+        "script": "TestScript",
+        "param":"scriptParameter"
+    },
+    "session":{
+        "token":"b69c863be60d6b026af17a3122956d958613039a1a885ccbd17",
+        "required":""
+    }
+}
+```
+
+---
