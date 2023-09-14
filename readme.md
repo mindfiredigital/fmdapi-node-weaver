@@ -1,4 +1,4 @@
-# Node-DATA-API Bundler
+# Filemaker-DATA-API Bundler using Node JS
 
 ### Base URL - https://dataapi-o2iw.onrender.com/api/dataApi
 
@@ -18,7 +18,7 @@
     "methodBody":{<method specific body>},
     "session":{
         "token":"<sessionToken>",
-        "required":"<true/false>"
+        "required":<true/false>
     }
 }
 
@@ -35,11 +35,11 @@
     "methodBody":{
         "username":"<Username>",
         "password":"<Password>",
-        "database":"KIB__Web"
+        "database":"<Filemaker_Filename>"
     },
     "session":{
-        "token":"",
-        "required":""
+        "token":"<sessionToken>",
+        "required":<true/false>
     }
 
 }
@@ -52,12 +52,11 @@
     "fmServer":"<IpAddress>",
     "method":"signout",
     "methodBody":{
-        "database":"DataApiTest",
-
+        "database":"<Filemaker_Filename>",
     },
     "session":{
-        "token":"6bbc7533af96e7c362e49c9bb54762ef8697a9994734b4487c",
-        "required":"true"
+        "token":"<sessionToken>",
+        "required":"<true/false>"
     }
 }
 ```
@@ -69,18 +68,18 @@
     "fmServer":"<IpAddress>",
     "method":"createRecord",
     "methodBody":{
-        "database":"KIB__Web",
-        "layout":"API_USER",
+        "database":"<Filemaker_Filename>",
+        "layout":"<Layout_Name>",
         "record":{
             "Name": "Varun Sharma",
-            "Phone": "7873333071",
+            "Phone": "11111111111",
             "Address":"Newyork"
         }
 
     },
     "session":{
-        "token":"6bbc7533af96e7c362e49c9bb54762ef8697a9994734b4487c",
-        "required":""
+        "token":"<sessionToken>",
+        "required":<true/false>
     }
 }
 
@@ -94,14 +93,15 @@
     "fmServer": "<IpAddress>",
     "method": "getAllRecords",
     "methodBody": {
-        "database": "KIB__Web",
-        "layout": "API_USER",
-        "offset":"1"
+        "database": "<Filemaker_Filename>",
+        "layout": "<Layout_Name>",
+        "offset":"1",
+        "limit": 10
 
     },
     "session": {
-        "token": "6bbc7533af96e7c362e49c9bb54762ef8697a9994734b4487c",
-        "required": ""
+        "token": "<sessionToken>",
+        "required": <true/false>
     }
 }
 ```
@@ -113,34 +113,34 @@
     "fmServer":"<IpAddress>",
     "method":"findRecord",
     "methodBody":{
-        "database":"KIB__Web",
-        "layout":"API_USER",
+        "database":"<Filemaker_Filename>",
+        "layout":"<Layout_Name>",
          "offset": 0,
          "limit": 0,
          "layout.response": "string",
         "dataformats":0,
         "query":[
-            {"Name": "=Basudev"},
-             {"Phone" : "8658474424", "omit" : "false"}
+            {"Name": "=Basudev", "Password": "=1234"},
+             {"Phone" : "11111111111", "omit" : "false"}
          ],
         "sort":[
              {"fieldName": "CreationTimestamp","sortOrder": "ascend"}
          ],
         "scripts":{
-            "script": "TestScript",
-            "script.param": "Yashraj"
-             "script.prerequest": "string",
-             "script.prerequest.param": "string",
-             "script.presort": "string",
-             "script.presort.param": "string"
+            "script": "<FM_Script1>",
+            "script.param": "<Script1_Param>"
+             "script.prerequest": "<FM_Script2>",
+             "script.prerequest.param": "<Script2_Param>",
+             "script.presort": "<FM_Script3>",
+             "script.presort.param": "<Script3_Param>"
         },
          "portal": [
-             "string"
+             "<PortalName>"
          ]
     },
     "session":{
-        "token":"9c786011470abf28896b5cad374989d4a0b378a0e1e381b9d4",
-        "required":false
+        "token":"<sessionToken>",
+        "required":<true/false>
     }
 }
 ```
@@ -154,14 +154,14 @@
     "fmServer":"<IpAddress>",
     "method":"executeScript",
     "methodBody":{
-        "database":"KIB__Web",
-        "layout":"API_USER",
-        "script": "TestScript",
-        "param":"scriptParameter"
+        "database":"<Filemaker_Filename>",
+        "layout":"<Layout_Name>",
+        "script": "<ScriptName>",
+        "param":"<ScriptParam>"
     },
     "session":{
-        "token":"b69c863be60d6b026af17a3122956d958613039a1a885ccbd17",
-        "required":""
+        "token":"<sessionToken>",
+        "required":<true/false>
     }
 }
 ```
