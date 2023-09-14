@@ -1,4 +1,4 @@
-# FileMaker Data API Bundler Documentation
+# FileMaker Data API Bundler using Node JS
 
 ## Overview
 
@@ -8,7 +8,7 @@ The FileMaker Data API Bundler is a Node.js package designed to simplify the int
 
 
 ![FM_DataApi_Bundler_Image](https://github.com/BasudevBharatBhushan/node-data-api/assets/64151314/c225d6ac-2d87-4c28-84c7-a950a58d2d12)
-
+**NOTE:** : The endpoints shown in figure are for demo purpose, these are not actual endpoints. For actual Data API endpoint, refer documentation
 
 ### Key Features
 
