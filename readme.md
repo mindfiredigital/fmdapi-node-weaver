@@ -1,4 +1,24 @@
-# Filemaker-DATA-API Bundler using Node JS
+# FileMaker Data API Bundler using Node JS
+
+## Overview
+
+The FileMaker Data API Bundler is a Node.js package designed to simplify the integration of FileMaker databases with frontend applications. It resolves common issues associated with the default FileMaker Data API, making it easier and more efficient to work with FileMaker data.
+
+
+
+
+![FM_DataApi_Bundler_Image](https://github.com/BasudevBharatBhushan/node-data-api/assets/64151314/c225d6ac-2d87-4c28-84c7-a950a58d2d12)
+**NOTE:** : The endpoints shown in figure are for demo purpose, these are not actual endpoints. For actual Data API endpoint, refer documentation
+
+### Key Features
+
+1. **No Mandatory Session Token**: Unlike the standard FileMaker Data API, the Bundler does not require a validated session token for every API call. It handles authentication using Basic Auth, generating a new session token if one is not provided or if the session has expired.
+
+2. **Uniform API Endpoints**: Each API endpoint in the Bundler follows a consistent style, simplifying usage and reducing confusion. Regardless of the specific API functionality, you'll find a consistent method structure.
+
+3. **Automatic Session Management**: Users don't need to worry about re-validating their session each time they interact with the API. The Bundler automatically manages sessions by using Basic Auth as an authentication header.
+
+## Usage
 
 ### Base URL - https://dataapi-o2iw.onrender.com/api/dataApi
 
