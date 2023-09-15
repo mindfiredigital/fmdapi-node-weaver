@@ -5,7 +5,7 @@
 ### Header
 
 - content-type: application/json
-- Authorization: Bearer Base64Encoded(<UserName:Password>)
+- Authorization: Basic Base64Encoded(<UserName:Password>)
 
 **NOTE:** : Session Token in body is optional, if session token is provided and flag is empty/false, it will try to call API with the provided session, if provided session is not valid, it will create a new session and return it.
 

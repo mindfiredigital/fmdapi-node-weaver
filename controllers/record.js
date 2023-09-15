@@ -89,11 +89,19 @@ exports.findRecord = async (req, res) => {
       httpsAgent,
     });
     console.log(response.data);
-    const record = response.data.response.data[0]?.fieldData;
-    if (record) {
-      res.status(200).json({ record, session: req.fmSessionToken });
-    } else {
-      res.status(404).json({ error: "Record not found." });
+    if (response.data.messages[0].message === "OK") {
+      const records = response.data.response.data.map(
+        (record) => record.fieldData
+      );
+      res.status(200).json({
+        recordInfo: {
+          table: response.data.response.dataInfo.table,
+          layout: response.data.response.dataInfo.layout,
+          totalRecordCount: response.data.response.dataInfo.foundCount,
+        },
+        records,
+        session: req.fmSessionToken,
+      });
     }
   } catch (error) {
     console.error(error);
