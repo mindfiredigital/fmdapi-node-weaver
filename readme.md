@@ -37,6 +37,26 @@ The `@mindfiredigital/fmdapi-node-weaver` is a tool that allows developers to in
 
 ## Installation
 
+To install the @mindfiredigital/fmdapi-node-weaver npm package in your project, use the following command:
+
+```bash
+npm install @mindfiredigital/fmdapi-node-weaver
+```
+
+- **Initialization**: Initialize the fmdapi-node-weaver in your project, specifying the function.
+
+```javascript
+const fm = require("fmdapi-node-weaver");
+
+const PORT = 9000;
+
+fm.run(PORT);
+
+//If PORT is not specified, it will run on default port 8000
+```
+
+## Installation (Without using NPM)
+
 To download the project `@mindfiredigital/fmdapi-node-weaver` into your system, use the following command:
 
 ```bash
