@@ -37,6 +37,26 @@ The `@mindfiredigital/fmdapi-node-weaver` is a tool that allows developers to in
 
 ## Installation
 
+To install the @mindfiredigital/fmdapi-node-weaver npm package in your project, use the following command:
+
+```bash
+npm install @mindfiredigital/fmdapi-node-weaver
+```
+
+- **Initialization**: Initialize the fmdapi-node-weaver in your project, specifying the function.
+
+```javascript
+const fm = require("fmdapi-node-weaver");
+
+const PORT = 9000;
+
+fm.run(PORT);
+
+//If PORT is not specified, it will run on default port 8000
+```
+
+## Installation (Without using NPM)
+
 To download the project `@mindfiredigital/fmdapi-node-weaver` into your system, use the following command:
 
 ```bash
@@ -82,6 +102,173 @@ docker build -t fmdapi-node-weaver .
 ```bash
 docker run -p 3000:3000 fmdapi-node-weaver
 ```
+
+## API format:
+
+### Endpoint - `<endpoint>api/dataApi`
+
+- eg. `http://localhost:8000/api/daApi`
+
+### Method - POST
+
+### Body Format
+
+```
+{
+    "fmServer":"<IpAddress>",
+    "method":"<methodName>",
+    "methodBody":{<method specific body>},
+    "session":{
+        "token":"<sessionToken>",
+        "required":<true/false>
+    }
+}
+
+```
+
+### Body Examples
+
+- ### Signin
+
+```
+{
+    "fmServer":"<IpAddress>",
+    "method":"signin",
+    "methodBody":{
+        "username":"<Username>",
+        "password":"<Password>",
+        "database":"<Filemaker_Filename>"
+    },
+    "session":{
+        "token":"<sessionToken>",
+        "required":<true/false>
+    }
+
+}
+```
+
+- ### Signout
+
+```
+{
+    "fmServer":"<IpAddress>",
+    "method":"signout",
+    "methodBody":{
+        "database":"<Filemaker_Filename>",
+    },
+    "session":{
+        "token":"<sessionToken>",
+        "required":"<true/false>"
+    }
+}
+```
+
+- ### CreateRecord
+
+```
+{
+    "fmServer":"<IpAddress>",
+    "method":"createRecord",
+    "methodBody":{
+        "database":"<Filemaker_Filename>",
+        "layout":"<Layout_Name>",
+        "record":{
+            "Name": "Varun Sharma",
+            "Phone": "11111111111",
+            "Address":"Newyork"
+        }
+
+    },
+    "session":{
+        "token":"<sessionToken>",
+        "required":<true/false>
+    }
+}
+
+
+```
+
+- ### GetAllRecords
+
+```
+{
+    "fmServer": "<IpAddress>",
+    "method": "getAllRecords",
+    "methodBody": {
+        "database": "<Filemaker_Filename>",
+        "layout": "<Layout_Name>",
+        "offset":"1",
+        "limit": 10
+
+    },
+    "session": {
+        "token": "<sessionToken>",
+        "required": <true/false>
+    }
+}
+```
+
+- ### FindRecord
+
+```
+{
+    "fmServer":"<IpAddress>",
+    "method":"findRecord",
+    "methodBody":{
+        "database":"<Filemaker_Filename>",
+        "layout":"<Layout_Name>",
+         "offset": 0,
+         "limit": 0,
+         "layout.response": "string",
+        "dataformats":0,
+        "query":[
+            {"Name": "=Basudev", "Password": "=1234"},
+             {"Phone" : "11111111111", "omit" : "false"}
+         ],
+        "sort":[
+             {"fieldName": "CreationTimestamp","sortOrder": "ascend"}
+         ],
+        "scripts":{
+            "script": "<FM_Script1>",
+            "script.param": "<Script1_Param>"
+             "script.prerequest": "<FM_Script2>",
+             "script.prerequest.param": "<Script2_Param>",
+             "script.presort": "<FM_Script3>",
+             "script.presort.param": "<Script3_Param>"
+        },
+         "portal": [
+             "<PortalName>"
+         ]
+    },
+    "session":{
+        "token":"<sessionToken>",
+        "required":<true/false>
+    }
+}
+```
+
+---
+
+- ### ExecuteScript
+
+```
+{
+    "fmServer":"<IpAddress>",
+    "method":"executeScript",
+    "methodBody":{
+        "database":"<Filemaker_Filename>",
+        "layout":"<Layout_Name>",
+        "script": "<ScriptName>",
+        "param":"<ScriptParam>"
+    },
+    "session":{
+        "token":"<sessionToken>",
+        "required":<true/false>
+    }
+}
+```
+
+---
 
 ## Contributing
 
