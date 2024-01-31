@@ -31,7 +31,7 @@
     }
   },
   "release": {
-    "repositoryUrl": "https://github.com/mindfiredigital/fmdapi-node-weaver",
+    "repositoryUrl": "https://github.com/mindfiredigital/fmdapi-node-weaver.git",
     "branches": [
       "main"
     ]
