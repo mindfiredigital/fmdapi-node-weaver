@@ -1,5 +1,5 @@
 {
-  "name": "fmdapi-node-weaver",
+  "name": "@mindfiredigital/fmdapi-node-weaver",
   "version": "0.0.0-development",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
