@@ -1,4 +1,4 @@
-# Code of Conduct - {Project Name}
+# Code of Conduct - fmdapi-node-weaver
 
 ## Our Pledge
 
