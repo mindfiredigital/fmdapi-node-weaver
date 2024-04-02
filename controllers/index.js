@@ -5,6 +5,7 @@ const {
   getAllRecords,
   findRecord,
   updateRecord,
+  uploadContainer,
 } = require("./record");
 const { executeScript } = require("./script");
 const { test } = require("./test");
@@ -50,6 +51,9 @@ exports.dataApi = async (req, res) => {
             break;
           case "syncCollection":
             syncCollection(req, res);
+            break;
+          case "uploadContainer":
+            uploadContainer(req, res);
             break;
 
           default:

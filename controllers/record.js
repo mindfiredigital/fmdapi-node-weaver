@@ -258,3 +258,40 @@ exports.updateRecord = async (req, res) => {
     res.status(500).json(responseJson);
   }
 };
+
+exports.uploadContainer = async (req, res) => {
+  const token = req.fmSessionToken;
+  const { database, layout, recordId, fieldName, file } = req.body.methodBody;
+
+  const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/records/${recordId}/containers/${fieldName}`;
+
+  const headers = {
+    "Content-Type": file.mimetype,
+    Authorization: `Bearer ${token}`,
+  };
+
+  try {
+    const response = await axios.post(apiUrl, file.buffer, {
+      headers,
+      httpsAgent,
+    });
+    res.status(200).json({
+      status: "uploaded",
+      recordId,
+      fieldName,
+      session: req.fmSessionToken,
+    });
+  } catch (error) {
+    console.error(error);
+    const responseJson = {
+      error: "An error occurred while uploading the file.",
+    };
+
+    if (error.response && error.response.statusText) {
+      responseJson.statusText = error.response.statusText;
+      responseJson.error = error.response.data;
+    }
+
+    res.status(500).json(responseJson);
+  }
+};
