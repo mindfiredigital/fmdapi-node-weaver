@@ -40,7 +40,7 @@ exports.dataApi = async (req, res) => {
         layout: StringifyObject(fields.layout),
         recordId: StringifyObject(fields.recordId),
         fieldName: StringifyObject(fields.fieldName),
-        repetition: StringifyObject(fields.repetition),
+        fieldRepetition: StringifyObject(fields.fieldRepetition),
       };
 
       req.body.session = session;

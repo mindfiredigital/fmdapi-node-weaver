@@ -263,12 +263,12 @@ exports.updateRecord = async (req, res) => {
 exports.uploadContainer = async (req, res) => {
   console.log("uploading container...");
   const token = req.fmSessionToken;
-  const { fieldName, database, layout, recordId, repetition } =
+  const { fieldName, database, layout, recordId, fieldRepetition } =
     req.body.methodBody;
 
   console.log(req.formObj);
   console.log(req.formObj);
-  const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/records/${recordId}/containers/${fieldName}/${repetition}`;
+  const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/records/${recordId}/containers/${fieldName}/${fieldRepetition}`;
   const headers = {
     Authorization: `Bearer ${token}`,
     "content-type": "multipart/form-data",

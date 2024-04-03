@@ -270,6 +270,26 @@ docker run -p 3000:3000 fmdapi-node-weaver
 
 ---
 
+- ### UploadContainer
+
+```bash
+
+curl --location '<endpoint>api/dataApi' \
+--header 'Authorization: Basic <Base64(username:password)>' \
+--form 'method="uploadContainer"' \
+--form 'fmServer="208.85.249.144"' \
+--form 'database="<fileName>"' \
+--form 'layout="<layoutName>"' \
+--form 'upload=@"/to/path/sample.pdf"' \
+--form 'recordId="1"' \
+--form 'fieldName="File"' \
+--form 'fieldRepetition="1"' \
+--form 'token="<session-token-optional>"' \
+--form 'sessionRequired="<true/false - optional>"' \
+```
+
+---
+
 ## Contributing
 
 We welcome contributions from the community. If you'd like to contribute to the `fmdapi-node-weaver` npm package, please follow our [Contributing Guidelines](CONTRIBUTING.md).
