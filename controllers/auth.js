@@ -251,7 +251,6 @@ exports.signout = async (req, res) => {
 
 /* Utility Methods */
 const fmLogin = async (fmServer, database, basicAuthToken, httpsAgent) => {
-  console.log("reaching here---fmlogin");
   console.log(
     `https://${fmServer}/fmi/data/vLatest/databases/${database}/sessions`
   );
@@ -267,10 +266,10 @@ const fmLogin = async (fmServer, database, basicAuthToken, httpsAgent) => {
       },
       { httpsAgent }
     );
-    console.log(loginResponse);
+    // console.log(loginResponse);
     return loginResponse.data.response.token;
   } catch (error) {
-    console.log("fmLogin Error: ", error);
+    // console.log("fmLogin Error: ", error);
     const responseJson = {
       error: "An error occurred while logging in.",
     };
@@ -285,8 +284,6 @@ const fmLogin = async (fmServer, database, basicAuthToken, httpsAgent) => {
 };
 
 const fmValidateSession = async (fmServer, sessionToken, httpsAgent) => {
-  console.log("reaching here---fmValidateSession");
-
   try {
     const validateResponse = await axios.get(
       `https://${fmServer}/fmi/data/vLatest/validateSession`,

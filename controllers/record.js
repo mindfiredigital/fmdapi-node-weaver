@@ -1,6 +1,7 @@
 require("dotenv").config();
 const axios = require("axios");
 const https = require("https");
+const formidable = require("formidable");
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const httpsAgent = new https.Agent({
@@ -260,31 +261,33 @@ exports.updateRecord = async (req, res) => {
 };
 
 exports.uploadContainer = async (req, res) => {
+  console.log("uploading container...");
   const token = req.fmSessionToken;
-  const { database, layout, recordId, fieldName, file } = req.body.methodBody;
+  const { fieldName, database, layout, recordId, repetition } =
+    req.body.methodBody;
 
-  const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/records/${recordId}/containers/${fieldName}`;
-
+  console.log(req.formObj);
+  console.log(req.formObj);
+  const apiUrl = `https://${req.body.fmServer}/fmi/data/vLatest/databases/${database}/layouts/${layout}/records/${recordId}/containers/${fieldName}/${repetition}`;
   const headers = {
-    "Content-Type": file.mimetype,
     Authorization: `Bearer ${token}`,
+    "content-type": "multipart/form-data",
   };
 
   try {
-    const response = await axios.post(apiUrl, file.buffer, {
+    const response = await axios.post(apiUrl, req.formObj, {
       headers,
       httpsAgent,
     });
+
     res.status(200).json({
-      status: "uploaded",
-      recordId,
+      status: "file uploaded",
       fieldName,
       session: req.fmSessionToken,
     });
   } catch (error) {
-    console.error(error);
     const responseJson = {
-      error: "An error occurred while uploading the file.",
+      error: "An error occurred while uploading the file to container",
     };
 
     if (error.response && error.response.statusText) {
